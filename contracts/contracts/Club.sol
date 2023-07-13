@@ -25,7 +25,7 @@ contract Club is IPaymaster, Ownable {
         _;
     }
 
-    constructor(string memory _uri, address _application) {
+    constructor(string memory _uri, address _application) payable {
         uri = _uri;
         application = _application;
     }

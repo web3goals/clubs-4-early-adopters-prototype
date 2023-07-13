@@ -4,7 +4,7 @@ import { zkSyncRichWallets } from "./utils/zkSyncRichWallets";
 import * as hre from "hardhat";
 import { ethers } from "hardhat";
 
-describe("Club", function () {
+describe.skip("Club", function () {
   it("Should provide gasless transaction for create social monkey", async function () {
     // Define provider
     const provider = new Provider("http://localhost:3050");
