@@ -1,6 +1,29 @@
 import Layout from "@/components/layout";
-import { FullWidthSkeleton, ThickDivider } from "@/components/styled";
+import {
+  ExtraLargeLoadingButton,
+  FullWidthSkeleton,
+  LargeLoadingButton,
+  ThickDivider,
+  WidgetBox,
+  WidgetInputTextField,
+  WidgetTitle,
+} from "@/components/styled";
+import { clubAbi } from "@/contracts/abi/club";
+import FormikHelper from "@/helper/FormikHelper";
+import useError from "@/hooks/useError";
+import useFormSubmit from "@/hooks/useFormSubmit";
+import useToasts from "@/hooks/useToast";
+import useUriDataLoader from "@/hooks/useUriDataLoader";
+import { palette } from "@/theme/palette";
+import { isAddressesEqual } from "@/utils/addresses";
+import { Stack, Typography } from "@mui/material";
+import { Box } from "@mui/system";
+import { ethers } from "ethers";
+import { Form, Formik } from "formik";
 import { useRouter } from "next/router";
+import { useState } from "react";
+import { useAccount, useContractRead } from "wagmi";
+import * as yup from "yup";
 
 /**
  * Page with a club.
@@ -13,8 +36,8 @@ export default function Club() {
     <Layout maxWidth="sm">
       {address ? (
         <>
-          <ClubJoinForm address={address.toString()} />
-          <ClubAdminForm address={address.toString()} />
+          <ClubDetails address={address.toString()} />
+          <ClubAdminPanel address={address.toString()} />
         </>
       ) : (
         <FullWidthSkeleton />
@@ -23,22 +46,239 @@ export default function Club() {
   );
 }
 
-// TODO: Implement
-function ClubJoinForm(props: { address: string }) {
-  return <></>;
+function ClubDetails(props: { address: string }) {
+  const { address } = useAccount();
+
+  /**
+   * Define club uri data
+   */
+  const { data: uri } = useContractRead({
+    address: props.address as `0x${string}`,
+    abi: clubAbi,
+    functionName: "uri",
+  });
+  const { data: uriData } = useUriDataLoader(uri as any);
+
+  /**
+   * Define is club member
+   */
+  const { data: isMember } = useContractRead({
+    address: props.address as `0x${string}`,
+    abi: clubAbi,
+    functionName: "isMember",
+    args: [address || ethers.constants.AddressZero],
+  });
+  console.log("isMember", isMember);
+
+  if (uriData === undefined || isMember === undefined) {
+    return <FullWidthSkeleton />;
+  }
+
+  return (
+    <Box>
+      <Typography variant="h4" textAlign="center" fontWeight={700}>
+        {uriData.title}
+      </Typography>
+
+      {isMember ? (
+        <>
+          <Typography textAlign="center" mt={1}>
+            Congrats, you are in the club!
+          </Typography>
+          <Box display="flex" flexDirection="column" alignItems="center" mt={2}>
+            <ExtraLargeLoadingButton
+              href={uriData.link}
+              target="_blank"
+              variant="contained"
+            >
+              Open App
+            </ExtraLargeLoadingButton>
+          </Box>
+        </>
+      ) : (
+        <>
+          <Typography textAlign="center" mt={1}>
+            {uriData.description}
+          </Typography>
+          <ClubJoinForm clubEmail={uriData.email} />
+        </>
+      )}
+    </Box>
+  );
 }
 
-// TODO: Implement
-function ClubAdminForm(props: { address: string }) {
-  const isAdmin = false;
+function ClubJoinForm(props: { clubEmail: string }) {
+  const { address } = useAccount();
+  const { handleError } = useError();
+  const { showToastSuccess } = useToasts();
+  const { submitForm } = useFormSubmit();
 
-  if (!isAdmin) {
-    return <></>;
+  /**
+   * Form states
+   */
+  const [formValues, setFormValues] = useState({
+    answer:
+      "I already have a lot of followers on other social media platforms!",
+    name: "Alice",
+    email: "",
+    wallet: address,
+  });
+  const formValidationSchema = yup.object({
+    answer: yup.string().required(),
+    name: yup.string().required(),
+    email: yup.string().required(),
+    wallet: yup.string().required(),
+  });
+  const [isFormSubmitting, setIsFormSubmitting] = useState(false);
+
+  async function submit(values: any, actions: any) {
+    try {
+      setIsFormSubmitting(true);
+      await submitForm(props.clubEmail, values);
+      showToastSuccess("Form is submitted");
+      actions?.resetForm();
+    } catch (error: any) {
+      handleError(error, true);
+    } finally {
+      setIsFormSubmitting(false);
+    }
   }
 
   return (
     <>
-      <ThickDivider sx={{ my: 8 }} />
+      <Formik
+        initialValues={formValues}
+        validationSchema={formValidationSchema}
+        onSubmit={submit}
+      >
+        {({ values, errors, touched, handleChange, setValues }) => (
+          <Form
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <FormikHelper onChange={(values: any) => setFormValues(values)} />
+            {/* Answer */}
+            <WidgetBox bgcolor={palette.blue} mt={2}>
+              <WidgetTitle>Answer</WidgetTitle>
+              <WidgetInputTextField
+                id="answer"
+                name="answer"
+                placeholder=""
+                value={values.answer}
+                onChange={handleChange}
+                error={touched.answer && Boolean(errors.answer)}
+                helperText={touched.answer && errors.answer}
+                disabled={isFormSubmitting}
+                multiline
+                maxRows={4}
+                sx={{ width: 1 }}
+              />
+            </WidgetBox>
+            {/* Name */}
+            <WidgetBox bgcolor={palette.purpleDark} mt={2}>
+              <WidgetTitle>Name</WidgetTitle>
+              <WidgetInputTextField
+                id="name"
+                name="name"
+                placeholder=""
+                value={values.name}
+                onChange={handleChange}
+                error={touched.name && Boolean(errors.name)}
+                helperText={touched.name && errors.name}
+                disabled={isFormSubmitting}
+                multiline
+                maxRows={4}
+                sx={{ width: 1 }}
+              />
+            </WidgetBox>
+            {/* Email */}
+            <WidgetBox bgcolor={palette.greyLight} mt={2}>
+              <WidgetTitle>Email</WidgetTitle>
+              <WidgetInputTextField
+                id="email"
+                name="email"
+                placeholder=""
+                value={values.email}
+                onChange={handleChange}
+                error={touched.email && Boolean(errors.email)}
+                helperText={touched.email && errors.email}
+                disabled={isFormSubmitting}
+                multiline
+                maxRows={4}
+                sx={{ width: 1 }}
+              />
+            </WidgetBox>
+            {/* Wallet */}
+            <WidgetBox bgcolor={palette.orange} mt={2}>
+              <WidgetTitle>Wallet</WidgetTitle>
+              <WidgetInputTextField
+                id="wallet"
+                name="wallet"
+                placeholder=""
+                value={values.wallet}
+                onChange={handleChange}
+                error={touched.wallet && Boolean(errors.wallet)}
+                helperText={touched.wallet && errors.wallet}
+                disabled={isFormSubmitting}
+                multiline
+                maxRows={4}
+                sx={{ width: 1 }}
+              />
+            </WidgetBox>
+            {/* Submit button */}
+            <ExtraLargeLoadingButton
+              loading={isFormSubmitting}
+              variant="outlined"
+              type="submit"
+              disabled={isFormSubmitting}
+              sx={{ mt: 3 }}
+            >
+              Submit
+            </ExtraLargeLoadingButton>
+          </Form>
+        )}
+      </Formik>
     </>
   );
+}
+
+function ClubAdminPanel(props: { address: string }) {
+  const { address } = useAccount();
+
+  /**
+   * Define is club admin
+   */
+  const { data: owner } = useContractRead({
+    address: props.address as `0x${string}`,
+    abi: clubAbi,
+    functionName: "owner",
+  });
+
+  if (address && isAddressesEqual(address, owner as any)) {
+    return (
+      <>
+        <ThickDivider sx={{ my: 8 }} />
+        <Typography variant="h4" textAlign="center" fontWeight={700}>
+          👑 Admin Panel
+        </Typography>
+        <Typography textAlign="center" mt={1}>
+          to rule the club
+        </Typography>
+        {/* TODO: Implement buttons */}
+        <Stack direction="column" spacing={2} mt={2} alignItems="center">
+          <LargeLoadingButton variant="contained" sx={{ minWidth: 280 }}>
+            Add Member
+          </LargeLoadingButton>
+          <LargeLoadingButton variant="outlined" sx={{ minWidth: 280 }}>
+            Remove Member
+          </LargeLoadingButton>
+        </Stack>
+      </>
+    );
+  }
+
+  return <></>;
 }
