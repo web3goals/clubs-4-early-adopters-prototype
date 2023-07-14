@@ -71,7 +71,6 @@ function ClubDetails(props: { address: `0x${string}` }) {
     functionName: "isMember",
     args: [address || ethers.constants.AddressZero],
   });
-  console.log("isMember", isMember);
 
   if (uriData === undefined || isMember === undefined) {
     return <FullWidthSkeleton />;
@@ -90,7 +89,7 @@ function ClubDetails(props: { address: `0x${string}` }) {
           </Typography>
           <Box display="flex" flexDirection="column" alignItems="center" mt={2}>
             <ExtraLargeLoadingButton
-              href={uriData.link}
+              href={`${uriData.link}?club=${props.address}`}
               target="_blank"
               variant="contained"
             >

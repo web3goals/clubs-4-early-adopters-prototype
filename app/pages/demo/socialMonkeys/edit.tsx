@@ -1,17 +1,17 @@
-import AccountProfile from "@/components/account/AccountProfile";
+import { AccountProfileEdit } from "@/components/account/AccountProfileEdit";
 import Layout from "@/components/demo/Layout";
-import { FullWidthSkeleton } from "@/components/styled";
+import { FullWidthSkeleton } from "components/styled";
 import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
 
-export default function SocialMonkeysHome() {
+export default function SocialMonkeysEdit() {
   const { address } = useAccount();
   const club = useRouter().query.club;
 
   return (
-    <Layout>
+    <Layout maxWidth="xs">
       {address && club ? (
-        <AccountProfile
+        <AccountProfileEdit
           accountAddress={address}
           clubAddress={club as `0x${string}`}
         />

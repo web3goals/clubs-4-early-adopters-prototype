@@ -38,7 +38,7 @@ export default function CreateClub() {
   const [formValues, setFormValues] = useState({
     title: "🐒 Social Monkeys Club",
     description:
-      "Tell us why you are the best candidate to join the club and get early access to the application form",
+      "Tell us why you are the best candidate to join the club and get early access to the application",
     formType: "Answer + Contact",
     contract: chainToSupportedChainConfig(chain).contracts.socialMonkeys,
     link: `${window.location.protocol}//${window.location.host}/demo/socialMonkeys`,
