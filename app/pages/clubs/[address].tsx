@@ -1,3 +1,5 @@
+import ClubMemberAddDialog from "@/components/dialog/ClubMemberAddDialog";
+import ClubMemberRemoveDialog from "@/components/dialog/ClubMemberRemoveDialog";
 import Layout from "@/components/layout";
 import {
   ExtraLargeLoadingButton,
@@ -8,6 +10,7 @@ import {
   WidgetInputTextField,
   WidgetTitle,
 } from "@/components/styled";
+import { DialogContext } from "@/context/dialog";
 import { clubAbi } from "@/contracts/abi/club";
 import FormikHelper from "@/helper/FormikHelper";
 import useError from "@/hooks/useError";
@@ -21,7 +24,7 @@ import { Box } from "@mui/system";
 import { ethers } from "ethers";
 import { Form, Formik } from "formik";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useAccount, useContractRead } from "wagmi";
 import * as yup from "yup";
 
@@ -36,8 +39,8 @@ export default function Club() {
     <Layout maxWidth="sm">
       {address ? (
         <>
-          <ClubDetails address={address.toString()} />
-          <ClubAdminPanel address={address.toString()} />
+          <ClubDetails address={address as `0x${string}`} />
+          <ClubAdminPanel address={address as `0x${string}`} />
         </>
       ) : (
         <FullWidthSkeleton />
@@ -46,7 +49,7 @@ export default function Club() {
   );
 }
 
-function ClubDetails(props: { address: string }) {
+function ClubDetails(props: { address: `0x${string}` }) {
   const { address } = useAccount();
 
   /**
@@ -63,7 +66,7 @@ function ClubDetails(props: { address: string }) {
    * Define is club member
    */
   const { data: isMember } = useContractRead({
-    address: props.address as `0x${string}`,
+    address: props.address,
     abi: clubAbi,
     functionName: "isMember",
     args: [address || ethers.constants.AddressZero],
@@ -234,7 +237,7 @@ function ClubJoinForm(props: { clubEmail: string }) {
               variant="outlined"
               type="submit"
               disabled={isFormSubmitting}
-              sx={{ mt: 3 }}
+              sx={{ mt: 2 }}
             >
               Submit
             </ExtraLargeLoadingButton>
@@ -245,14 +248,15 @@ function ClubJoinForm(props: { clubEmail: string }) {
   );
 }
 
-function ClubAdminPanel(props: { address: string }) {
+function ClubAdminPanel(props: { address: `0x${string}` }) {
+  const { showDialog, closeDialog } = useContext(DialogContext);
   const { address } = useAccount();
 
   /**
    * Define is club admin
    */
   const { data: owner } = useContractRead({
-    address: props.address as `0x${string}`,
+    address: props.address,
     abi: clubAbi,
     functionName: "owner",
   });
@@ -267,12 +271,33 @@ function ClubAdminPanel(props: { address: string }) {
         <Typography textAlign="center" mt={1}>
           to rule the club
         </Typography>
-        {/* TODO: Implement buttons */}
         <Stack direction="column" spacing={2} mt={2} alignItems="center">
-          <LargeLoadingButton variant="contained" sx={{ minWidth: 280 }}>
+          <LargeLoadingButton
+            variant="contained"
+            onClick={() =>
+              showDialog?.(
+                <ClubMemberAddDialog
+                  clubAddress={props.address}
+                  onClose={closeDialog}
+                />
+              )
+            }
+            sx={{ minWidth: 280 }}
+          >
             Add Member
           </LargeLoadingButton>
-          <LargeLoadingButton variant="outlined" sx={{ minWidth: 280 }}>
+          <LargeLoadingButton
+            variant="outlined"
+            onClick={() =>
+              showDialog?.(
+                <ClubMemberRemoveDialog
+                  clubAddress={props.address}
+                  onClose={closeDialog}
+                />
+              )
+            }
+            sx={{ minWidth: 280 }}
+          >
             Remove Member
           </LargeLoadingButton>
         </Stack>

@@ -222,7 +222,7 @@ export default function CreateClub() {
               variant="outlined"
               type="submit"
               disabled={isFormSubmitting}
-              sx={{ mt: 3 }}
+              sx={{ mt: 2 }}
             >
               Submit
             </ExtraLargeLoadingButton>
