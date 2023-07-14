@@ -12,11 +12,13 @@ import useError from "@/hooks/useError";
 import useIpfs from "@/hooks/useIpfs";
 import useToasts from "@/hooks/useToast";
 import { palette } from "@/theme/palette";
+import { chainToSupportedChainConfig } from "@/utils/chaints";
 import { MenuItem, Typography } from "@mui/material";
 import { ethers } from "ethers";
 import { Form, Formik } from "formik";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { useNetwork } from "wagmi";
 import * as yup from "yup";
 import { Web3Provider } from "zksync-web3";
 
@@ -25,6 +27,7 @@ import { Web3Provider } from "zksync-web3";
  */
 export default function CreateClub() {
   const router = useRouter();
+  const { chain } = useNetwork();
   const { handleError } = useError();
   const { uploadJsonToIpfs } = useIpfs();
   const { showToastSuccess } = useToasts();
@@ -37,7 +40,7 @@ export default function CreateClub() {
     description:
       "Tell us why you are the best candidate to join the club and get early access to the application form",
     formType: "Answer + Contact",
-    contract: process.env.NEXT_PUBLIC_CLUB_SOCIAL_MONKEYS_CONTRACT_ADDRESS,
+    contract: chainToSupportedChainConfig(chain).contracts.socialMonkeys,
     link: `${window.location.protocol}//${window.location.host}/demo/socialMonkeys`,
     email: "socialmonkeys@kiv1n.ru",
   });
@@ -56,24 +59,19 @@ export default function CreateClub() {
       setIsFormSubmitting(true);
       // Upload form values to ipfs
       const { uri } = await uploadJsonToIpfs(values);
-      console.log("uri", uri);
       // Define provider and signer
       const provider = new Web3Provider((window as any).ethereum);
       const signer = provider.getSigner();
       // Define contract
-      console.log(
-        "NEXT_PUBLIC_CLUB_FACTORY_CONTRACT_ADDRESS",
-        process.env.NEXT_PUBLIC_CLUB_FACTORY_CONTRACT_ADDRESS
-      );
       const clubFactoryContract = new ethers.Contract(
-        process.env.NEXT_PUBLIC_CLUB_FACTORY_CONTRACT_ADDRESS || "",
+        chainToSupportedChainConfig(chain).contracts.clubFactory,
         clubFactoryAbi,
         signer
       );
       // Create club using club factory contract
       const transaction = await (
         await clubFactoryContract.createClubAndSendEther(uri, values.contract, {
-          value: ethers.utils.parseEther("0.04"),
+          value: ethers.utils.parseEther("0.005"),
         })
       ).wait();
       // Parse event to define club address

@@ -22,9 +22,9 @@ import { theme } from "theme";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 
+import { getSupportedChains } from "@/utils/chaints";
 import { ParticleNetwork } from "@particle-network/auth";
 import { particleWallet } from "@particle-network/rainbowkit-ext";
-import { zkSyncTestnet } from "wagmi/chains";
 
 new ParticleNetwork({
   projectId: process.env.NEXT_PUBLIC_PARTICLE_PROJECT_ID as string,
@@ -33,7 +33,7 @@ new ParticleNetwork({
 });
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [zkSyncTestnet],
+  [...getSupportedChains()],
   [publicProvider()]
 );
 
