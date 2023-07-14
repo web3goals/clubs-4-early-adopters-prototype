@@ -37,7 +37,7 @@ function Copyright(props: { sx?: SxProps }) {
         mt={0.5}
       >
         Boost your application by providing gasless transactions for your early
-        adoters
+        adopters
       </Typography>
     </Container>
   );

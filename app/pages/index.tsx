@@ -40,7 +40,7 @@ export default function Landing() {
         </Typography>
         <Typography variant="h4" textAlign="center" mt={1}>
           by providing <strong>gasless transactions</strong> for{" "}
-          <strong>early adoters</strong>
+          <strong>early adopters</strong>
         </Typography>
         {address ? (
           <Link href={`/clubs/create`}>
