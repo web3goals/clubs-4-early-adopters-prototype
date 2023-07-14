@@ -7,8 +7,8 @@ import { utils, Web3Provider } from "zksync-web3";
 export default function SocialMonkeysHome() {
   async function createMonkey() {
     // Define contracts
-    const socialMonkeysAddress = "0xb1Ca5B44ef3627A3E5Ed7a6EE877D9D997A7c7ED";
-    const clubAddress = "0x7AddC93ED39C4c64dffB478999B45f5a40619C23";
+    const socialMonkeysAddress = "0xb1Ca5B44ef3627A3E5Ed7a6EE877D9D997A7c7ED"; // TODO: Use env variable
+    const clubAddress = "0x7AddC93ED39C4c64dffB478999B45f5a40619C23"; // TODO: Define in request params
 
     // Define provider and signer
     const provider = new Web3Provider((window as any).ethereum);
