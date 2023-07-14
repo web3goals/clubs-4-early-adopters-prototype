@@ -6,15 +6,12 @@ import { useAccount } from "wagmi";
 
 export default function SocialMonkeysEdit() {
   const { address } = useAccount();
-  const club = useRouter().query.club;
+  const club = useRouter().query.club as `0x${string}`;
 
   return (
     <Layout maxWidth="xs">
       {address && club ? (
-        <AccountProfileEdit
-          accountAddress={address}
-          clubAddress={club as `0x${string}`}
-        />
+        <AccountProfileEdit accountAddress={address} clubAddress={club} />
       ) : (
         <FullWidthSkeleton />
       )}

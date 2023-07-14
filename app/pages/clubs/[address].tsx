@@ -81,24 +81,23 @@ function ClubDetails(props: { address: `0x${string}` }) {
       <Typography variant="h4" textAlign="center" fontWeight={700}>
         {uriData.title}
       </Typography>
-
-      {isMember ? (
+      {isMember && (
+        <Typography textAlign="center" mt={1}>
+          Congrats, you are in the club!
+        </Typography>
+      )}
+      <Box display="flex" flexDirection="column" alignItems="center" mt={2}>
+        <LargeLoadingButton
+          href={`${uriData.link}?club=${props.address}`}
+          target="_blank"
+          variant="contained"
+        >
+          Open App
+        </LargeLoadingButton>
+      </Box>
+      {!isMember && (
         <>
-          <Typography textAlign="center" mt={1}>
-            Congrats, you are in the club!
-          </Typography>
-          <Box display="flex" flexDirection="column" alignItems="center" mt={2}>
-            <ExtraLargeLoadingButton
-              href={`${uriData.link}?club=${props.address}`}
-              target="_blank"
-              variant="contained"
-            >
-              Open App
-            </ExtraLargeLoadingButton>
-          </Box>
-        </>
-      ) : (
-        <>
+          <ThickDivider sx={{ my: 4 }} />
           <Typography textAlign="center" mt={1}>
             {uriData.description}
           </Typography>
