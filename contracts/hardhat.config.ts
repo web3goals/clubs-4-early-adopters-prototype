@@ -12,7 +12,7 @@ const config: HardhatUserConfig = {
     version: "latest",
     settings: {},
   },
-  defaultNetwork: "zkSyncTestnet",
+  defaultNetwork: "zkSyncTestnetLocal",
   networks: {
     hardhat: {
       zksync: true,

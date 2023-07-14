@@ -71,7 +71,7 @@ export default function CreateClub() {
       // Create club using club factory contract
       const transaction = await (
         await clubFactoryContract.createClubAndSendEther(uri, values.contract, {
-          value: ethers.utils.parseEther("0.005"),
+          value: ethers.utils.parseEther("0.0025"),
         })
       ).wait();
       // Parse event to define club address
