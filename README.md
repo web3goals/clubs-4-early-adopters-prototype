@@ -22,7 +22,7 @@ To make it, I used:
 
 ## 🧠 Contracts (zkSync Era Testnet)
 
-- Club Factory - [0xa642D30bF43288Be1E10c999B3e6526879a8E03B](s/0xa642D30bF43288Be1E10c999B3e6526879a8E03B)
+- Club Factory - [0xa642D30bF43288Be1E10c999B3e6526879a8E03B](https://goerli.explorer.zksync.io/address/0xa642D30bF43288Be1E10c999B3e6526879a8E03B)
 
 ## 🚀 Plans
 
