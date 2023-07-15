@@ -14,7 +14,7 @@ This way, users have a more enjoyable experience and it motivates them to use th
 
 ## ⚒️ How it's made
 
-To make it, I used
+To make it, I used:
 
 - zkSync network and a custom paymaster contract to provide features for developers to create and operate clubs of early adopters.
 - Particle Network for more convenient and faster login of users.
